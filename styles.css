@@ -6,7 +6,7 @@ body {
   font-size: 18px;
 }
 
-#root {
+#app {
   align-self: center;
   justify-self: center;
   background-color: #eee;
@@ -21,9 +21,12 @@ h1 {
   font-size: 18px;
 }
 
+input {
+  margin-bottom: 9px;
+}
+
 input,
 button {
   padding: 9px;
   font-size: 18px;
-  margin-bottom: 9px;
 }
