@@ -11,6 +11,7 @@ const magic = new Magic("pk_test_3F8F2B46C789AB90");
  */
 function useMagic(userEmail) {
   const isMounted = useRef(true);
+  const [isReady, setIsReady] = useState(false);
   const [userMetadata, setUserMetadata] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -22,12 +23,14 @@ function useMagic(userEmail) {
         const metadata = await magic.user.getMetadata();
         if (isMounted.current) setUserMetadata(metadata);
       }
+
+      if (isMounted.current) setIsReady(true);
     });
 
     return () => {
       isMounted.current = false;
-    }
-  });
+    };
+  }, []);
 
   const loginWithMagicLink = useCallback(async () => {
     await magic.auth.loginWithMagicLink({ email: userEmail });
@@ -39,7 +42,7 @@ function useMagic(userEmail) {
     setIsLoggedIn(false);
   }, []);
 
-  return { loginWithMagicLink, logout, isLoggedIn, userMetadata };
+  return { isReady, loginWithMagicLink, logout, isLoggedIn, userMetadata };
 }
 
 /**
@@ -51,29 +54,37 @@ export default function App() {
     setEmail(event.target.value);
   }, []);
 
-  const { loginWithMagicLink, logout, isLoggedIn, userMetadata } = useMagic(email);
+  const {
+    isReady,
+    loginWithMagicLink,
+    logout,
+    isLoggedIn,
+    userMetadata
+  } = useMagic(email);
+
+  const view = isLoggedIn ? (
+    <div className="container">
+      <h1>Current user: {userMetadata.email}</h1>
+      <button onClick={logout}>Logout</button>
+    </div>
+  ) : (
+    <div className="container">
+      <h1>Please sign up or login</h1>
+      <input
+        type="email"
+        name="email"
+        required="required"
+        placeholder="Enter your email"
+        value={email}
+        onChange={handleEmailInputChange}
+      />
+      <button onClick={loginWithMagicLink}>Send</button>
+    </div>
+  );
 
   return (
     <div className="App">
-      {!isLoggedIn ? (
-        <div className="container">
-          <h1>Please sign up or login</h1>
-          <input
-            type="email"
-            name="email"
-            required="required"
-            placeholder="Enter your email"
-            value={email}
-            onChange={handleEmailInputChange}
-          />
-          <button onClick={loginWithMagicLink}>Send</button>
-        </div>
-      ) : (
-        <div className="container">
-          <h1>Current user: {userMetadata.email}</h1>
-          <button onClick={logout}>Logout</button>
-        </div>
-      )}
+      {isReady ? view : <div className="container">Loading...</div>}
     </div>
   );
 }
