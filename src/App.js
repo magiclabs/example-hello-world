@@ -70,7 +70,7 @@ export default function App() {
         </div>
       ) : (
         <div className="container">
-          <h1>Current user: ${userMetadata.email}</h1>
+          <h1>Current user: {userMetadata.email}</h1>
           <button onClick={logout}>Logout</button>
         </div>
       )}
